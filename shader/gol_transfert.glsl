@@ -10,7 +10,7 @@ struct GolUpdateCmd {
     uint x;         // x coordinate of the gol command
     uint y;         // y coordinate of the gol command
     uint w;         // width of the filled zone
-    uint enabled;   // whether to enable or disable zone
+    bool enabled;   // whether to enable or disable zone
 };
 
 // Local compute unit size
@@ -36,6 +36,7 @@ void main()
 {
     uint cmdIndex = gl_GlobalInvocationID.x;
     GolUpdateCmd cmd = commands[cmdIndex];
+    golBuffer[cmd.x + GOL_WIDTH * cmd.y] = 1;
 
     for (uint x = cmd.x; x < (cmd.x + cmd.w); x++)
     {
@@ -43,7 +44,7 @@ void main()
         {
             if (isInside(x, y))
             {
-                if (cmd.enabled != 0) atomicOr(golBuffer[getBufferIndex(x, y)], 1);
+                if (cmd.enabled == true) atomicOr(golBuffer[getBufferIndex(x, y)], 1);
                 else atomicAnd(golBuffer[getBufferIndex(x, y)], 0);
             }
         }

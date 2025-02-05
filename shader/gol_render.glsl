@@ -26,4 +26,5 @@ void main()
 
     if ((golBuffer[coords.x + coords.y*uvec2(resolution).x]) == 1) finalColor = vec4(1.0);
     else finalColor = vec4(0.0, 0.0, 0.0, 1.0);
+    //finalColor = vec4(1.0, 1.0, 0.0, 1.0);
 }
