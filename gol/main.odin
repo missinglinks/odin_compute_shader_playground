@@ -69,7 +69,7 @@ main :: proc() {
 
 		//update
 
-		brushSize += i32(rl.GetMouseWheelMove())
+		brushSize += i32(rl.GetMouseWheelMove() * 5)
 		if (rl.IsMouseButtonDown(.LEFT) || rl.IsMouseButtonDown(.RIGHT)) &&
 		   (transfertBuffer.count < MAX_BUFFERED_TRANSFERTS) {
 			//Buffer command

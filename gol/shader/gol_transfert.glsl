@@ -44,7 +44,9 @@ void main()
         {
             if (isInside(x, y))
             {
-                if (cmd.enabled == true) atomicOr(golBuffer[getBufferIndex(x, y)], 1);
+                if (cmd.enabled == true) {
+                    atomicOr(golBuffer[getBufferIndex(x, y)], (x+y*GOL_WIDTH) % 2);
+                }
                 else atomicAnd(golBuffer[getBufferIndex(x, y)], 0);
             }
         }
