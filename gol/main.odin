@@ -1,4 +1,4 @@
-package game
+package gol
 
 import "core:fmt"
 import glfw "vendor:glfw"
