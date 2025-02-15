@@ -34,8 +34,6 @@ void main() {
     int col = int(pos.x);
     int row = int(pos.y);
 
-    imageStore(renderTex, ivec2(col, row), vec4(0,0,0,255));
-
     int friendsCount = 0;
     vec2 cohesionVec = vec2(0,0);
     vec2 alignVec = vec2(0,0);
@@ -81,11 +79,6 @@ void main() {
 
     pos += vel * params.deltaTime * 3;
 
-    // if (pos.x <= 0.0) pos.x += params.windowX;
-    // if (pos.y <= 0.0) pos.y += params.windowY;
-    // if (pos.x >= params.windowX) pos.x = 0.0;
-    // if (pos.y >= params.windowY) pos.y = 0.0;
-
     vec2 final_pos = pos;
 
     position.data[index] = final_pos;
@@ -95,6 +88,6 @@ void main() {
     row = int(final_pos.y);
 
     if (col > 0.0 && col < params.windowX && row > 0.0 && row < params.windowY)
-        imageStore(renderTex, ivec2(col, row), vec4(255,255,255,255));
+        imageStore(renderTex, ivec2(col, row), vec4(255,friendsCount/100.0,friendsCount/100.0,255));
 }
 

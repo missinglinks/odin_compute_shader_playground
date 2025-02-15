@@ -6,7 +6,7 @@ import rl "vendor:raylib"
 import rlgl "vendor:raylib/rlgl"
 
 GOL_WIDTH :: 768
-MAX_BUFFERED_TRANSFERTS :: 48
+MAX_BUFFERED_TRANSFERS :: 48
 
 GolUpdateCmd :: struct {
 	x:       i32,
@@ -17,7 +17,7 @@ GolUpdateCmd :: struct {
 
 GolUpdateSSBO :: struct {
 	count:    i32,
-	commands: [MAX_BUFFERED_TRANSFERTS]GolUpdateCmd,
+	commands: [MAX_BUFFERED_TRANSFERS]GolUpdateCmd,
 }
 
 
@@ -43,19 +43,19 @@ main :: proc() {
 	golRenderShader := rl.LoadShader(nil, "shader/gol_render.glsl")
 	resUniformLoc := rl.GetShaderLocation(golRenderShader, "resolution")
 
-	// gol transfert shader
-	golTransfertCode := rl.LoadFileText("shader/gol_transfert.glsl")
-	defer rl.UnloadFileText(golTransfertCode)
+	// gol transfer shader
+	goltransferCode := rl.LoadFileText("shader/gol_transfer.glsl")
+	defer rl.UnloadFileText(goltransferCode)
 
-	golTransfertShader := rlgl.CompileShader(cstring(golTransfertCode), rlgl.COMPUTE_SHADER)
-	golTransfertProgram := rlgl.LoadComputeShaderProgram(golTransfertShader)
+	goltransferShader := rlgl.CompileShader(cstring(goltransferCode), rlgl.COMPUTE_SHADER)
+	goltransferProgram := rlgl.LoadComputeShaderProgram(goltransferShader)
 
 	// storag buffer object
 	ssboA := rlgl.LoadShaderBuffer(GOL_WIDTH * GOL_WIDTH * size_of(uint), nil, rlgl.DYNAMIC_COPY)
 	ssboB := rlgl.LoadShaderBuffer(GOL_WIDTH * GOL_WIDTH * size_of(uint), nil, rlgl.DYNAMIC_COPY)
-	ssboTransfert := rlgl.LoadShaderBuffer(size_of(GolUpdateSSBO), nil, rlgl.DYNAMIC_COPY)
+	ssbotransfer := rlgl.LoadShaderBuffer(size_of(GolUpdateSSBO), nil, rlgl.DYNAMIC_COPY)
 
-	transfertBuffer: GolUpdateSSBO
+	transferBuffer: GolUpdateSSBO
 
 
 	// draw texture
@@ -71,30 +71,30 @@ main :: proc() {
 
 		brushSize += i32(rl.GetMouseWheelMove() * 5)
 		if (rl.IsMouseButtonDown(.LEFT) || rl.IsMouseButtonDown(.RIGHT)) &&
-		   (transfertBuffer.count < MAX_BUFFERED_TRANSFERTS) {
+		   (transferBuffer.count < MAX_BUFFERED_TRANSFERS) {
 			//Buffer command
-			transfertBuffer.commands[transfertBuffer.count].x =
+			transferBuffer.commands[transferBuffer.count].x =
 				rl.GetMouseX() - i32(f32(brushSize) / 2.0)
-			transfertBuffer.commands[transfertBuffer.count].y =
+			transferBuffer.commands[transferBuffer.count].y =
 				rl.GetMouseY() - i32(f32(brushSize) / 2.0)
 
-			transfertBuffer.commands[transfertBuffer.count].w = brushSize
-			transfertBuffer.commands[transfertBuffer.count].enabled = rl.IsMouseButtonDown(.LEFT)
+			transferBuffer.commands[transferBuffer.count].w = brushSize
+			transferBuffer.commands[transferBuffer.count].enabled = rl.IsMouseButtonDown(.LEFT)
 
 
-			transfertBuffer.count += 1
-		} else if transfertBuffer.count > 0 {
+			transferBuffer.count += 1
+		} else if transferBuffer.count > 0 {
 			// send ssbo buffer to gpu
-			rlgl.UpdateShaderBuffer(ssboTransfert, &transfertBuffer, size_of(GolUpdateSSBO), 0)
+			rlgl.UpdateShaderBuffer(ssbotransfer, &transferBuffer, size_of(GolUpdateSSBO), 0)
 
 			// process ssbo commands on gpu
-			rlgl.EnableShader(golTransfertProgram)
+			rlgl.EnableShader(goltransferProgram)
 			rlgl.BindShaderBuffer(ssboA, 1)
-			rlgl.BindShaderBuffer(ssboTransfert, 3)
-			rlgl.ComputeShaderDispatch(u32(transfertBuffer.count), 1, 1)
+			rlgl.BindShaderBuffer(ssbotransfer, 3)
+			rlgl.ComputeShaderDispatch(u32(transferBuffer.count), 1, 1)
 			rlgl.DisableShader()
 
-			transfertBuffer.count = 0
+			transferBuffer.count = 0
 		} else {
 			rlgl.EnableShader(golLogicProgram)
 			rlgl.BindShaderBuffer(ssboA, 1)
@@ -134,9 +134,9 @@ main :: proc() {
 
 	rlgl.UnloadShaderBuffer(ssboA)
 	rlgl.UnloadShaderBuffer(ssboB)
-	rlgl.UnloadShaderBuffer(ssboTransfert)
+	rlgl.UnloadShaderBuffer(ssbotransfer)
 
-	rlgl.UnloadShaderProgram(golTransfertProgram)
+	rlgl.UnloadShaderProgram(goltransferProgram)
 	rlgl.UnloadShaderProgram(golLogicProgram)
 
 	rl.UnloadTexture(whiteTex)

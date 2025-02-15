@@ -15,12 +15,12 @@ Vector2i :: struct {
 WINDOW_SIZE :: Vector2i{960, 540}
 BOID_N :: 40000
 
-FRIEND_DIST :: 20.0
+FRIEND_DIST :: 10.0
 AVOID_DIST :: 3.0
 
 COHESION_FACTOR :: 0.125
 AVOIDANCE_FACTOR :: 05.105
-ALIGNMENT_FACTOR :: 000.5095
+ALIGNMENT_FACTOR :: 1.5095
 
 MAX_SPEED :: 2
 
@@ -80,7 +80,6 @@ main :: proc() {
 	rl.InitWindow(i32(WINDOW_SIZE.x), i32(WINDOW_SIZE.y), "Boids")
 	defer rl.CloseWindow()
 
-
 	// load compute shader
 	boids_shader := load_compute_shader("shader/boids_compute.glsl")
 	boids_shader_prog := rlgl.LoadComputeShaderProgram(boids_shader)
@@ -95,6 +94,12 @@ main :: proc() {
 	tex := rl.LoadTextureFromImage(img)
 	defer rl.UnloadImage(img)
 
+	tex_data := rlgl.ReadTexturePixels(
+		tex.id,
+		i32(WINDOW_SIZE.x),
+		i32(WINDOW_SIZE.y),
+		i32(rl.PixelFormat.UNCOMPRESSED_R8G8B8A8),
+	)
 
 	// bind image texture
 	rlgl.BindImageTexture(tex.id, 3, i32(tex.format), false)
@@ -112,6 +117,15 @@ main :: proc() {
 	rlgl.UpdateShaderBuffer(ssbo_vel, &boid_data.vel, size_of(rl.Vector2) * BOID_N, 0)
 
 	for !rl.WindowShouldClose() {
+		rlgl.UpdateTexture(
+			tex.id,
+			0,
+			0,
+			i32(WINDOW_SIZE.x),
+			i32(WINDOW_SIZE.y),
+			i32(rl.PixelFormat.UNCOMPRESSED_R8G8B8A8),
+			tex_data,
+		)
 
 		pixels := new([i32(WINDOW_SIZE.x) * i32(WINDOW_SIZE.y) + 1]rl.Color)
 		defer free(pixels)
