@@ -15,3 +15,5 @@ Boids on the compute shader, inspired by Daniel Schoenmehls Godot compute shader
 But i haven't implemented any optimizations (yet): on my 3060 mobile it can run ~40000 boids with 60 fps.
 
 ![](imgs/boids.gif)
+
+Might add more stuff in the future :D
